@@ -37,7 +37,7 @@ func TestBitStatus_Default(t *testing.T) {
 	status, _ := game.GetStatusOf(0, 0)
 
 	if status != engine.Dead {
-		t.Fatalf("%s\t Bit status is not %b", fail, engine.Dead)
+		t.Fatalf("%s\t Bit status is not %v", fail, engine.Dead)
 	}
 }
 
