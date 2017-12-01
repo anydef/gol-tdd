@@ -107,34 +107,3 @@ func TestBitsFlip_On_NxN_Grid(t *testing.T) {
 
 }
 
-//func TestFlipStatusOnIndex(t *testing.T) {
-//	side_len := 1
-//	game := engine.NewGame(side_len)
-//	if status, err := game.GetStatusOf(0); status != false || err != nil {
-//		t.Fatalf("%s\t Default cell should be dead", fail)
-//	}
-//
-//	if status, err := game.FlipBitOnIndex(0); status != true || err != nil {
-//		t.Fatalf("%s\t cell with flipped bit should be alive", fail)
-//	}
-//
-//	if status, err := game.FlipBitOnIndex(0); status != false || err != nil {
-//		t.Fatalf("%s\t cell with flipped bit should be dead", fail)
-//	}
-//}
-
-//func TestFlipStatusOnMultipleIndexes(t *testing.T) {
-//	side_len := 2
-//	game := engine.NewGame(side_len)
-//	if status, _ := game.GetStatusOf(1); status != false {
-//		t.Fatalf("%s\t Default cell should be dead", fail)
-//	}
-//
-//	if status, _ := game.FlipBitOnIndex(1); status != true {
-//		t.Fatalf("%s\t cell with flipped bit should be alive", fail)
-//	}
-//
-//	if status, _ := game.FlipBitOnIndex(1); status != false {
-//		t.Fatalf("%s\t cell with flipped bit should be dead", fail)
-//	}
-//}
