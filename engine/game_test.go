@@ -8,6 +8,20 @@ import (
 const succeed = "\u2713"
 const fail = "\u2717"
 
+func testAlive(g engine.Game, x int, y int, t *testing.T) {
+	statusTest(g, x, y, engine.Alive, t)
+}
+
+func testDead(g engine.Game, x int, y int, t *testing.T) {
+	statusTest(g, x, y, engine.Dead, t)
+}
+
+func statusTest(g engine.Game, x int, y int, s engine.Status, t *testing.T) {
+	if status, err := g.TestStatusOf(x, y); status != s || err != nil {
+		t.Fatalf("%s\t Wrong status %v of a seeded cell", fail, status)
+	}
+}
+
 func TestCreateGame(t *testing.T) {
 	side_len := 0
 	var game engine.Game = engine.NewGame(side_len)
@@ -123,39 +137,92 @@ func TestGame_1x1_SeedAlive(t *testing.T) {
 		t.Fatalf("%s\t Unable to seed a cell", fail)
 	}
 
-	if status, err := game.TestStatusOf(0, 0); status != engine.Alive || err != nil {
-		t.Fatalf("%s\t Wrong status %v of a seeded cell", fail, status)
-	}
+	testAlive(game, 0, 0, t)
 }
 
 func TestGame_1x1_OneCellDiesWhenHasZeroNeighbours(t *testing.T) {
 	game := engine.NewGame(1)
 
-	if err := game.SeedAlive(0, 0); err != nil {
+	var x, y int
+
+	if err := game.SeedAlive(x, y); err != nil {
 		t.Fatalf("%s\t Unable to seed a cell", fail)
 	}
 
-	if status, err := game.TestStatusOf(0, 0); status != engine.Alive || err != nil {
-		t.Fatalf("%s\t Wrong status %v of a seeded cell", fail, status)
-	}
+	testAlive(game, x, y, t)
 
 	game.Next()
 
-	if status, err := game.TestStatusOf(0, 0); status != engine.Dead || err != nil {
+	if status, err := game.TestStatusOf(x, y); status != engine.Dead || err != nil {
 		t.Fatalf("%s\t Cell with zero neighbours should die", fail)
 	}
 }
 
-func TestGame_1x1_DeadDoesnBecomeAliveOnNext(t *testing.T) {
-	game := engine.NewGame(1)
+func TestGame_NxN_DeadDoesntBecomeAliveOnNext(t *testing.T) {
+	var x, y int
+	for i := 1; i < 5; i++ {
+		game := engine.NewGame(i)
 
-	if status, err := game.TestStatusOf(0, 0); status != engine.Dead || err != nil {
-		t.Fatalf("%s\t Wrong status %v of a seeded cell", fail, status)
+		testDead(game, x, y, t)
+
+		game.Next()
+
+		testDead(game, x, y, t)
+	}
+}
+
+func TestGame_2x2_CellWith_LessThan_TwoNeighbours_Dies(t *testing.T) {
+	game := engine.NewGame(2)
+
+	alive_cells := []struct {
+		x int
+		y int
+	}{
+		{0, 0},
+		{0, 1},
+	}
+
+	for _, tt := range alive_cells {
+		game.SeedAlive(tt.x, tt.y)
+	}
+
+	for _, tt := range alive_cells {
+		testAlive(game, tt.x, tt.y, t)
 	}
 
 	game.Next()
 
-	if status, err := game.TestStatusOf(0, 0); status != engine.Dead || err != nil {
-		t.Fatalf("%s\t Cell with zero neighbours should die", fail)
+	for _, tt := range alive_cells {
+		testDead(game, tt.x, tt.y, t)
 	}
+
 }
+
+//func TestGame_2x2_CellWith_ThreeNeighbours_StaysAlive(t *testing.T) {
+//	game := engine.NewGame(2)
+//
+//	alive_cells := []struct {
+//		x int
+//		y int
+//	}{
+//		{0, 0},
+//		{0, 1},
+//		{1, 0},
+//		{1, 1},
+//	}
+//
+//	for _, tt := range alive_cells {
+//		game.SeedAlive(tt.x, tt.y)
+//	}
+//
+//	for _, tt := range alive_cells {
+//		testAlive(game, tt.x, tt.y, t)
+//	}
+//
+//	game.Next()
+//
+//	for _, tt := range alive_cells {
+//		testAlive(game, tt.x, tt.y, t)
+//	}
+//
+//}

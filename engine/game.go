@@ -9,6 +9,11 @@ const (
 
 type Cell struct {
 	LifeStatus Status
+	NextStatus Status
+}
+
+func (c *Cell) Next() {
+
 }
 
 type Grid [][]Cell
@@ -18,7 +23,7 @@ type Game struct {
 	Grid Grid
 }
 
-func (g *Game) Next() Grid {
+func (g *Game) Next() {
 	for x := range g.Grid {
 		for y := range g.Grid[x] {
 			if status, err := g.TestStatusOf(x, y); status == Alive && err == nil {
@@ -26,7 +31,6 @@ func (g *Game) Next() Grid {
 			}
 		}
 	}
-	return g.Grid
 }
 
 func (g *Game) SeedDead(x int, y int) error {
