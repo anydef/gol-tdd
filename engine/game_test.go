@@ -34,7 +34,7 @@ func TestBitStatus_Default(t *testing.T) {
 	side_len := 1
 	game := engine.NewGame(side_len)
 
-	status, _ := game.GetStatusOf(0, 0)
+	status, _ := game.TestStatusOf(0, 0)
 
 	if status != engine.Dead {
 		t.Fatalf("%s\t Bit status is not %v", fail, engine.Dead)
@@ -45,11 +45,11 @@ func TestBitStatus_OfNotExistingBit(t *testing.T) {
 	side_len := 1
 	game := engine.NewGame(side_len)
 
-	if _, err := game.GetStatusOf(1, 0); err == nil {
+	if _, err := game.TestStatusOf(1, 0); err == nil {
 		t.Fatalf("%s\tOut of bound error should be returned", fail)
 	}
 
-	if _, err := game.GetStatusOf(-1, 0); err == nil {
+	if _, err := game.TestStatusOf(-1, 0); err == nil {
 		t.Fatalf("%s\t Should not access item outside", fail)
 	}
 }
@@ -71,7 +71,7 @@ func TestFlipBit_On_1x1_Grid(t *testing.T) {
 	side_len := 1
 	game := engine.NewGame(side_len)
 
-	if status, err := game.GetStatusOf(0, 0); status != engine.Dead || err != nil {
+	if status, err := game.TestStatusOf(0, 0); status != engine.Dead || err != nil {
 		t.Fatalf("%s\t Initial bit is %v", fail, engine.Dead)
 	}
 
@@ -90,7 +90,7 @@ func TestBitsFlip_On_NxN_Grid(t *testing.T) {
 
 	for x := 0; x < side_len; x++ {
 		for y := 0; y < side_len; y++ {
-			if status, err := game.GetStatusOf(x, y); status != engine.Dead || err != nil {
+			if status, err := game.TestStatusOf(x, y); status != engine.Dead || err != nil {
 				t.Fatalf("%s\t Initial bit is %v", fail, engine.Dead)
 			}
 
@@ -98,12 +98,64 @@ func TestBitsFlip_On_NxN_Grid(t *testing.T) {
 				t.Fatalf("%s\t Initial bit is %v", fail, engine.Alive)
 			}
 
-			if status, err := game.GetStatusOf(x, y); status != engine.Alive || err != nil {
+			if status, err := game.TestStatusOf(x, y); status != engine.Alive || err != nil {
 				t.Fatalf("%s\t Status should remain alive %v", fail, engine.Alive)
 			}
 
 		}
 	}
-
 }
 
+func TestGame_1x1_SeedAliveOutOfBounds(t *testing.T) {
+	side_len := 1
+	game := engine.NewGame(side_len)
+
+	if err := game.SeedAlive(1, 1); err == nil {
+		t.Fatalf("%s\t Should not allow setting cell outside of a grid", fail)
+	}
+}
+
+func TestGame_1x1_SeedAlive(t *testing.T) {
+	side_len := 1
+	game := engine.NewGame(side_len)
+
+	if err := game.SeedAlive(0, 0); err != nil {
+		t.Fatalf("%s\t Unable to seed a cell", fail)
+	}
+
+	if status, err := game.TestStatusOf(0, 0); status != engine.Alive || err != nil {
+		t.Fatalf("%s\t Wrong status %v of a seeded cell", fail, status)
+	}
+}
+
+func TestGame_1x1_OneCellDiesWhenHasZeroNeighbours(t *testing.T) {
+	game := engine.NewGame(1)
+
+	if err := game.SeedAlive(0, 0); err != nil {
+		t.Fatalf("%s\t Unable to seed a cell", fail)
+	}
+
+	if status, err := game.TestStatusOf(0, 0); status != engine.Alive || err != nil {
+		t.Fatalf("%s\t Wrong status %v of a seeded cell", fail, status)
+	}
+
+	game.Next()
+
+	if status, err := game.TestStatusOf(0, 0); status != engine.Dead || err != nil {
+		t.Fatalf("%s\t Cell with zero neighbours should die", fail)
+	}
+}
+
+func TestGame_1x1_DeadDoesnBecomeAliveOnNext(t *testing.T) {
+	game := engine.NewGame(1)
+
+	if status, err := game.TestStatusOf(0, 0); status != engine.Dead || err != nil {
+		t.Fatalf("%s\t Wrong status %v of a seeded cell", fail, status)
+	}
+
+	game.Next()
+
+	if status, err := game.TestStatusOf(0, 0); status != engine.Dead || err != nil {
+		t.Fatalf("%s\t Cell with zero neighbours should die", fail)
+	}
+}

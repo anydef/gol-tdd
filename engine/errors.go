@@ -3,9 +3,10 @@ package engine
 import "fmt"
 
 type OutOfBoundsError struct {
-	Index int
+	X_Axis int
+	Y_Axis int
 }
 
 func (o *OutOfBoundsError) Error() string {
-	return fmt.Sprintf("Index %d out of visible range", o.Index)
+	return fmt.Sprintf("X_Axis %d out of visible range", o.X_Axis)
 }
