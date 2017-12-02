@@ -155,6 +155,10 @@ func TestRule_When_LessThan_2_Alive_Neighbours_Die_FromUnderpopulation(t *testin
 	}{
 		{neighbours: []neighbour{},},
 		{neighbours: []neighbour{{n: engine.NewCell(engine.Alive)}},},
+		{neighbours: []neighbour{
+			{n: engine.NewCell(engine.Alive), d: engine.North},
+			{n: engine.NewCell(engine.Dead), d: engine.South},
+		}},
 	}
 
 	for _, tt := range setup {
@@ -186,6 +190,12 @@ func TestRule_When_2_Or_3_Alive_Neighbours_Then_Live(t *testing.T) {
 			{n: engine.NewCell(engine.Alive), d: engine.NorthEast},
 			{n: engine.NewCell(engine.Alive), d: engine.East},
 		}},
+		{neighbours: []neighbour{
+			{n: engine.NewCell(engine.Alive), d: engine.North},
+			{n: engine.NewCell(engine.Alive), d: engine.NorthEast},
+			{n: engine.NewCell(engine.Alive), d: engine.East},
+			{n: engine.NewCell(engine.Dead), d: engine.SouthEast},
+		}},
 	}
 	for _, tt := range setup {
 		cell := engine.NewCell(engine.Alive)
@@ -197,6 +207,84 @@ func TestRule_When_2_Or_3_Alive_Neighbours_Then_Live(t *testing.T) {
 		}
 		if next := cell.Next(); next != engine.Alive {
 			t.Fatalf("%s\t Cell %v should live", fail, cell)
+		}
+	}
+}
+
+func TestRule_LiveCell_WithMoraThan_3_LiveNeighbours_Dies_Of_Overpopulation(t *testing.T) {
+	setup := []struct {
+		neighbours neighbours
+	}{
+		{neighbours: []neighbour{
+			{n: engine.NewCell(engine.Alive), d: engine.North},
+			{n: engine.NewCell(engine.Alive), d: engine.NorthEast},
+			{n: engine.NewCell(engine.Alive), d: engine.East},
+			{n: engine.NewCell(engine.Alive), d: engine.SouthEast},
+		}},
+	}
+	for _, tt := range setup {
+		cell := engine.NewCell(engine.Alive)
+
+		for _, neighbour := range tt.neighbours {
+			if err := cell.SetNeighbourAt(neighbour.n, neighbour.d); err != nil {
+				t.Fatalf("%s\t Could not set %+v as neighbour for %+v", fail, neighbour, cell)
+			}
+		}
+		if next := cell.Next(); next != engine.Dead {
+			t.Fatalf("%s\t Cell %v should die because of overpopulation", fail, cell)
+		}
+	}
+}
+
+func TestRule_Exactly_3_AliveNeighbours_BreedAliveCell(t *testing.T) {
+	setup := []struct {
+		neighbours neighbours
+	}{
+		{neighbours: []neighbour{
+			{n: engine.NewCell(engine.Alive), d: engine.North},
+			{n: engine.NewCell(engine.Alive), d: engine.NorthEast},
+			{n: engine.NewCell(engine.Alive), d: engine.East},
+		}},
+	}
+	for _, tt := range setup {
+		cell := engine.NewCell(engine.Dead)
+
+		for _, neighbour := range tt.neighbours {
+			if err := cell.SetNeighbourAt(neighbour.n, neighbour.d); err != nil {
+				t.Fatalf("%s\t Could not set %+v as neighbour for %+v", fail, neighbour, cell)
+			}
+		}
+		if next := cell.Next(); next != engine.Alive {
+			t.Fatalf("%s\t Cell %v should be born", fail, cell)
+		}
+	}
+}
+
+func TestRule_LessThan_Or_MoreThan_3_Cells_CannotBreed(t *testing.T) {
+	setup := []struct {
+		neighbours neighbours
+	}{
+		{neighbours: []neighbour{
+			{n: engine.NewCell(engine.Alive), d: engine.North},
+			{n: engine.NewCell(engine.Alive), d: engine.NorthEast},
+		}},
+		{neighbours: []neighbour{
+			{n: engine.NewCell(engine.Alive), d: engine.North},
+			{n: engine.NewCell(engine.Alive), d: engine.SouthEast},
+			{n: engine.NewCell(engine.Alive), d: engine.West},
+			{n: engine.NewCell(engine.Alive), d: engine.NorthEast},
+		}},
+	}
+	for _, tt := range setup {
+		cell := engine.NewCell(engine.Dead)
+
+		for _, neighbour := range tt.neighbours {
+			if err := cell.SetNeighbourAt(neighbour.n, neighbour.d); err != nil {
+				t.Fatalf("%s\t Could not set %+v as neighbour for %+v", fail, neighbour, cell)
+			}
+		}
+		if next := cell.Next(); next != engine.Dead {
+			t.Fatalf("%s\t Less than, or more than 3 cells cannot breed", fail)
 		}
 	}
 }

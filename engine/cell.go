@@ -55,8 +55,7 @@ func (c *Cell) SetNeighbourAt(neighbour *Cell, d Direction) error {
 		return nil
 	}
 
-	//This cell is already s neighbouring cell
-	if c.directions[neighbour] != 0 || c.neighbours[d] != nil {
+	if c.isNeighbour(neighbour, d) {
 		return errors.New(fmt.Sprintf("%+v is already a neighbour at %d", neighbour, d))
 	}
 
@@ -71,19 +70,28 @@ func (c *Cell) SetNeighbourAt(neighbour *Cell, d Direction) error {
 func (c *Cell) Age() {
 	c.State = c.Next()
 }
+func (c *Cell) isNeighbour(neighbour *Cell, d Direction) bool {
+	return c.directions[neighbour] != 0 || c.neighbours[d] != nil
+}
 
 func (c *Cell) Next() State {
 	var alive_neighbours int
 	for _, d := range directions {
-		if c.NeighbourAt(d) != nil {
+		if n := c.NeighbourAt(d); n != nil && n.State == Alive {
 			alive_neighbours++
 		}
 	}
 
-	if alive_neighbours < 2 {
-		return Dead
+	if c.State == Alive {
+		if alive_neighbours == 2 || alive_neighbours == 3 {
+			return Alive
+		}
 	}
-	return Alive
+	if c.State == Dead && alive_neighbours == 3 {
+		return Alive
+	}
+
+	return Dead
 }
 
 func NewCell(s State) *Cell {
