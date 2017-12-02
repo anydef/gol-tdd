@@ -51,6 +51,10 @@ func (c *Cell) NeighbourAt(d Direction) *Cell {
 
 func (c *Cell) SetNeighbourAt(neighbour *Cell, d Direction) error {
 
+	if c == neighbour {
+		return errors.New(fmt.Sprintf("Cell %+v cannot be its own neighbour", neighbour))
+	}
+
 	if c.neighbours[d] == neighbour && c.directions[neighbour] == d {
 		return nil
 	}
@@ -68,13 +72,13 @@ func (c *Cell) SetNeighbourAt(neighbour *Cell, d Direction) error {
 }
 
 func (c *Cell) Age() {
-	c.State = c.Next()
+	c.State = c.NextGeneration()
 }
 func (c *Cell) isNeighbour(neighbour *Cell, d Direction) bool {
 	return c.directions[neighbour] != 0 || c.neighbours[d] != nil
 }
 
-func (c *Cell) Next() State {
+func (c *Cell) NextGeneration() State {
 	var alive_neighbours int
 	for _, d := range directions {
 		if n := c.NeighbourAt(d); n != nil && n.State == Alive {
@@ -82,11 +86,10 @@ func (c *Cell) Next() State {
 		}
 	}
 
-	if c.State == Alive {
-		if alive_neighbours == 2 || alive_neighbours == 3 {
-			return Alive
-		}
+	if c.State == Alive && (alive_neighbours == 2 || alive_neighbours == 3) {
+		return Alive
 	}
+
 	if c.State == Dead && alive_neighbours == 3 {
 		return Alive
 	}

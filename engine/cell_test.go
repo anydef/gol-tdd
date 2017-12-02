@@ -32,7 +32,7 @@ func TestCell_Dead_RemainsDead_OnNext(t *testing.T) {
 		t.Fatalf("%s\t Cell should be Dead", fail)
 	}
 
-	if state := cell.Next(); state != engine.Dead {
+	if state := cell.NextGeneration(); state != engine.Dead {
 		t.Fatalf("%s\t Cell should be Dead", fail)
 	}
 }
@@ -40,7 +40,7 @@ func TestCell_Dead_RemainsDead_OnNext(t *testing.T) {
 func TestCell_Alive_WillDie_OnNext(t *testing.T) {
 	cell := engine.NewCell(engine.Alive)
 
-	if state := cell.Next(); state != engine.Dead {
+	if state := cell.NextGeneration(); state != engine.Dead {
 		t.Fatalf("%s\t Cell should be Dead", fail)
 	}
 }
@@ -48,7 +48,7 @@ func TestCell_Alive_WillDie_OnNext(t *testing.T) {
 func TestCell_Ages_And_ChangesState(t *testing.T) {
 	cell := engine.NewCell(engine.Alive)
 
-	if state := cell.Next(); state != engine.Dead {
+	if state := cell.NextGeneration(); state != engine.Dead {
 		t.Fatalf("%s\t Cell should be Dead", fail)
 	}
 
@@ -171,7 +171,7 @@ func TestRule_When_LessThan_2_Alive_Neighbours_Die_FromUnderpopulation(t *testin
 			}
 		}
 
-		if next := cell.Next(); next != engine.Dead {
+		if next := cell.NextGeneration(); next != engine.Dead {
 			t.Fatalf("%s\t Cell %v should die from underpopulation", fail, cell)
 		}
 	}
@@ -205,7 +205,7 @@ func TestRule_When_2_Or_3_Alive_Neighbours_Then_Live(t *testing.T) {
 				t.Fatalf("%s\t Could not set %+v as neighbour for %+v", fail, neighbour, cell)
 			}
 		}
-		if next := cell.Next(); next != engine.Alive {
+		if next := cell.NextGeneration(); next != engine.Alive {
 			t.Fatalf("%s\t Cell %v should live", fail, cell)
 		}
 	}
@@ -230,7 +230,7 @@ func TestRule_LiveCell_WithMoraThan_3_LiveNeighbours_Dies_Of_Overpopulation(t *t
 				t.Fatalf("%s\t Could not set %+v as neighbour for %+v", fail, neighbour, cell)
 			}
 		}
-		if next := cell.Next(); next != engine.Dead {
+		if next := cell.NextGeneration(); next != engine.Dead {
 			t.Fatalf("%s\t Cell %v should die because of overpopulation", fail, cell)
 		}
 	}
@@ -254,7 +254,7 @@ func TestRule_Exactly_3_AliveNeighbours_BreedAliveCell(t *testing.T) {
 				t.Fatalf("%s\t Could not set %+v as neighbour for %+v", fail, neighbour, cell)
 			}
 		}
-		if next := cell.Next(); next != engine.Alive {
+		if next := cell.NextGeneration(); next != engine.Alive {
 			t.Fatalf("%s\t Cell %v should be born", fail, cell)
 		}
 	}
@@ -283,10 +283,37 @@ func TestRule_LessThan_Or_MoreThan_3_Cells_CannotBreed(t *testing.T) {
 				t.Fatalf("%s\t Could not set %+v as neighbour for %+v", fail, neighbour, cell)
 			}
 		}
-		if next := cell.Next(); next != engine.Dead {
+		if next := cell.NextGeneration(); next != engine.Dead {
 			t.Fatalf("%s\t Less than, or more than 3 cells cannot breed", fail)
 		}
 	}
 }
 
-// test should not be possible to set invalid direction value
+func TestRules_BlockColony_DoesntDie(t *testing.T) {
+	cell_1_1 := engine.NewCell(engine.Alive)
+	cell_1_2 := engine.NewCell(engine.Alive)
+	cell_2_1 := engine.NewCell(engine.Alive)
+	cell_2_2 := engine.NewCell(engine.Alive)
+
+	cell_1_1.SetNeighbourAt(cell_1_2, engine.North)
+	cell_1_1.SetNeighbourAt(cell_2_2, engine.NorthEast)
+	cell_1_1.SetNeighbourAt(cell_2_1, engine.East)
+
+	cell_1_2.SetNeighbourAt(cell_2_2, engine.East)
+	cell_1_2.SetNeighbourAt(cell_2_1, engine.SouthEast)
+
+	cell_2_1.SetNeighbourAt(cell_2_2, engine.North)
+
+	for _, c := range []*engine.Cell{cell_1_1, cell_1_2, cell_2_1, cell_2_2} {
+		if c.NextGeneration() != engine.Alive {
+			t.Fatalf("%s\t Cell %v in block colony should live", fail, cell_1_1)
+		}
+	}
+}
+
+func TestCell_Cannot_BeOnesNeighbour(t *testing.T) {
+	cell := engine.NewCell(engine.Alive)
+	if cell.SetNeighbourAt(cell, engine.North) == nil {
+		t.Fatalf("%s\t Cell %+v cannot be ones neighbour", fail, cell)
+	}
+}
