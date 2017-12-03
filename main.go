@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/anydef/gol-tdd/engine"
+)
 
 func main() {
-	fmt.Printf("Working environment")
+	game := engine.NewGame(10000)
+	for i := 0; i < 1; i++ {
+		game.Next()
+	}
 }
