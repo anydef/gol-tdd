@@ -317,3 +317,28 @@ func TestCell_Cannot_BeOnesNeighbour(t *testing.T) {
 		t.Fatalf("%s\t Cell %+v cannot be ones neighbour", fail, cell)
 	}
 }
+
+
+func TestCell_ChangeStatus_On_AgeOnly(t *testing.T) {
+	cell := engine.NewCell(engine.Alive)
+
+	if cell.State != engine.Alive {
+		t.Fatalf("%s\t Cell %+v status shouldn't change", fail, cell)
+	}
+
+	if cell.NextGeneration() != engine.Dead {
+		t.Fatalf("%s\t Cell's %+v should die in next generation", fail, cell)
+	}
+
+	if cell.State != engine.Alive {
+		t.Fatalf("%s\t Cell %+v should not die before aging", fail, cell)
+	}
+
+	cell.Age()
+
+	if cell.State != engine.Dead {
+		t.Fatalf("%s\t Cell %+v should be dead after aging", fail, cell)
+	}
+
+
+}
