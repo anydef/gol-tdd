@@ -17,24 +17,83 @@ type Grid struct {
 	Size  int
 }
 
-func (g *Grid) IsAliveAt(c Coordinate) State {
-	if c.x >= g.Size || c.y >= g.Size {
+type Direction struct {
+	x int
+	y int
+}
+
+var directions []Direction = []Direction{
+	{0, 1},
+	{0, -1},
+	{1, 0},
+	{1, 1},
+	{1, -1},
+	{-1, 0},
+	{-1, 1},
+	{-1, -1},
+}
+
+func (g *Grid) CellAt(c Coordinate) State {
+	if !g.allowedCoordinate(c.x, c.y) {
 		return Dead
 	}
-
 	return g.cells[c.x][c.y]
 }
 
-func (g *Grid) SetCell(c Coordinate, s State) State {
-	if c.x >= g.Size || c.y >= g.Size {
+func (g *Grid) isAliveAt(c Coordinate) bool {
+	return g.CellAt(c) == Alive
+}
+
+func (g *Grid) setCell(c Coordinate, s State) State {
+	if inNonVisibleCoordinate(c, g.Size) {
 		return Dead
 	}
 	g.cells[c.x][c.y] = s
 	return s
 }
 
+func (g *Grid) NextGeneration(c Coordinate) State {
+	if !g.allowedCoordinate(c.x, c.y) {
+		return Dead
+	}
+
+	var neighbours int
+	for _, direction := range directions {
+		x := c.x + direction.x
+		y := c.y + direction.y
+		if g.isAliveAt(NewCoordinate(x, y)) {
+			neighbours++
+		}
+	}
+	if neighbours == 2 {
+		return Alive
+	}
+
+	if neighbours < 2 {
+		return Dead
+	}
+
+	return Dead
+
+}
+func (g *Grid) allowedCoordinate(x int, y int) bool {
+	return g.allowedAxis(x) && g.allowedAxis(y)
+}
+func (g *Grid) allowedAxis(x int) bool {
+	return x >= 0 && x < g.Size
+}
+
 func NewGrid(size int) Grid {
-	return Grid{Size: size}
+	cells := make([][]State, size)
+	for i := range cells {
+		cells[i] = make([]State, size)
+	}
+
+	return Grid{Size: size, cells: cells}
+}
+
+func inNonVisibleCoordinate(c Coordinate, size int) bool {
+	return c.x >= size || c.y >= size
 }
 
 func NewCoordinate(x int, y int) Coordinate {

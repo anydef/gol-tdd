@@ -4,12 +4,23 @@ type Game struct {
 	grid Grid
 }
 
+func (g *Game) Next() Grid {
+	next_grid := NewGrid(g.grid.Size)
+
+	next_grid.setCell(NewCoordinate(0, 0), Dead)
+
+	g.grid = next_grid
+
+	return g.Snapshot()
+}
+
 func (g *Game) GetCell(c Coordinate) State {
-	return g.grid.IsAliveAt(c)
+	return g.grid.CellAt(c)
 }
 
 func (g *Game) Seed(c Coordinate, i State) State {
-	return g.grid.SetCell(c, i)
+	//NewCoordinate()
+	return g.grid.setCell(c, i)
 }
 
 func (g *Game) Snapshot() Grid {
@@ -17,9 +28,5 @@ func (g *Game) Snapshot() Grid {
 }
 
 func NewGame(side int) Game {
-	cells := make([][]State, side)
-	for i := range cells {
-		cells[i] = make([]State, side)
-	}
-	return Game{grid: Grid{Size: side, cells: cells}}
+	return Game{grid: NewGrid(side)}
 }
