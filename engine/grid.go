@@ -74,8 +74,8 @@ func (g *Grid) NextGeneration(c Coordinate) State {
 	}
 
 	return Dead
-
 }
+
 func (g *Grid) allowedCoordinate(x int, y int) bool {
 	return g.allowedAxis(x) && g.allowedAxis(y)
 }
