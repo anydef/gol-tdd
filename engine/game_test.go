@@ -72,26 +72,3 @@ func TestRules_single_cell_dies(t *testing.T) {
 	}
 }
 
-func TestGame_Next_BlockColony_Stays_Alive(t *testing.T) {
-	block_colony := []struct {
-		c engine.Coordinate
-	}{
-		{engine.NewCoordinate(0, 0)},
-		{engine.NewCoordinate(0, 1)},
-		{engine.NewCoordinate(1, 0)},
-		{engine.NewCoordinate(1, 1)},
-	}
-
-	var game engine.Game = engine.NewGame(2)
-	for _, tt := range block_colony {
-		game.Seed(tt.c, engine.Alive)
-	}
-
-	game.Next()
-
-	for _, tt := range block_colony {
-		if game.GetCell(tt.c) != engine.Alive {
-			t.Fatalf("\tCell in block colony should stay alive, coordinate %+v", tt.c)
-		}
-	}
-}
