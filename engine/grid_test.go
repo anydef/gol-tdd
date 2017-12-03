@@ -73,7 +73,6 @@ func TestGrid_Cell_With_1_Neighbour_Dies(t *testing.T) {
 	}
 }
 
-
 func TestGrid_Cell_With_2_Neighbours_Lives(t *testing.T) {
 	cells := []struct {
 		x int
@@ -94,4 +93,92 @@ func TestGrid_Cell_With_2_Neighbours_Lives(t *testing.T) {
 			t.Fatalf("Cell with two neighbours at %+v should live", c)
 		}
 	}
+}
+
+func TestGrid_Cell_With_3_Neighbours_Lives(t *testing.T) {
+	cells := []struct {
+		x int
+		y int
+	}{
+		{0, 1},
+		{0, 0},
+		{1, 0},
+		{1, 1},
+	}
+
+	var g Grid = NewGrid(2)
+	for _, cell := range cells {
+		g.setCell(NewCoordinate(cell.x, cell.y), Alive)
+	}
+	for _, cell := range cells {
+		c := NewCoordinate(cell.x, cell.y)
+		if g.NextGeneration(c) != Alive {
+			t.Fatalf("Cell with two neighbours at %+v should live", c)
+		}
+	}
+}
+
+func TestGrid_Cell_With_More_Than_3_Neighbours_Dies(t *testing.T) {
+	cells := []struct {
+		x int
+		y int
+	}{
+		{0, 1},
+		{1, 0},
+		{1, 1},
+		{1, 2},
+		{2, 1},
+	}
+
+	var g Grid = NewGrid(3)
+	for _, cell := range cells {
+		g.setCell(NewCoordinate(cell.x, cell.y), Alive)
+	}
+
+	c := NewCoordinate(1, 1)
+	if g.NextGeneration(c) != Dead {
+		t.Fatalf("Cell with more that three neighbours at %+v should die", c)
+	}
+
+}
+
+func TestGrid_Exactly_3_Cells_Breed(t *testing.T) {
+	first_generation := []struct {
+		x int
+		y int
+	}{
+		{0, 1},
+		{1, 0},
+		{1, 1},
+		{1, 2},
+		{2, 1},
+	}
+
+	var g Grid = NewGrid(3)
+	for _, cell := range first_generation {
+		g.setCell(NewCoordinate(cell.x, cell.y), Alive)
+	}
+
+	second_generation := []struct {
+		x int
+		y int
+	}{
+		{0, 0},
+		{0, 1},
+		{0, 2},
+		{1, 0},
+		{1, 2},
+		{2, 0},
+		{2, 1},
+		{2, 2},
+	}
+
+	for _, tt := range second_generation {
+
+		c := NewCoordinate(tt.x, tt.y)
+		if g.NextGeneration(c) != Alive {
+			t.Fatalf("Exactly three cells have to reproduce at %+v", c)
+		}
+	}
+
 }

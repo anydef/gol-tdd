@@ -65,7 +65,11 @@ func (g *Grid) NextGeneration(c Coordinate) State {
 			neighbours++
 		}
 	}
-	if neighbours == 2 {
+	if neighbours == 2 && g.isAliveAt(c) {
+		return Alive
+	}
+
+	if neighbours == 3 {
 		return Alive
 	}
 
@@ -79,6 +83,7 @@ func (g *Grid) NextGeneration(c Coordinate) State {
 func (g *Grid) allowedCoordinate(x int, y int) bool {
 	return g.allowedAxis(x) && g.allowedAxis(y)
 }
+
 func (g *Grid) allowedAxis(x int) bool {
 	return x >= 0 && x < g.Size
 }
