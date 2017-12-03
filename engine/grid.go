@@ -34,14 +34,14 @@ var directions []Direction = []Direction{
 }
 
 func (g *Grid) CellAt(c Coordinate) State {
-	if !g.allowedCoordinate(c.x, c.y) {
+	if !g.isCoordinateAllowed(c.x, c.y) {
 		return Dead
 	}
 	return g.cells[c.x][c.y]
 }
 
-func (g *Grid) isAliveAt(c Coordinate) bool {
-	return g.CellAt(c) == Alive
+func (g *Grid) isAliveAt(x int, y int) bool {
+	return g.CellAt(NewCoordinate(x, y)) == Alive
 }
 
 func (g *Grid) setCell(c Coordinate, s State) State {
@@ -53,7 +53,7 @@ func (g *Grid) setCell(c Coordinate, s State) State {
 }
 
 func (g *Grid) NextGeneration(c Coordinate) State {
-	if !g.allowedCoordinate(c.x, c.y) {
+	if !g.isCoordinateAllowed(c.x, c.y) {
 		return Dead
 	}
 
@@ -61,11 +61,11 @@ func (g *Grid) NextGeneration(c Coordinate) State {
 	for _, direction := range directions {
 		x := c.x + direction.x
 		y := c.y + direction.y
-		if g.isAliveAt(NewCoordinate(x, y)) {
+		if g.isAliveAt(x, y) {
 			neighbours++
 		}
 	}
-	if neighbours == 2 && g.isAliveAt(c) {
+	if neighbours == 2 && g.isAliveAt(c.x, c.y) {
 		return Alive
 	}
 
@@ -80,11 +80,11 @@ func (g *Grid) NextGeneration(c Coordinate) State {
 	return Dead
 }
 
-func (g *Grid) allowedCoordinate(x int, y int) bool {
-	return g.allowedAxis(x) && g.allowedAxis(y)
+func (g *Grid) isCoordinateAllowed(x int, y int) bool {
+	return g.isAxisAllowed(x) && g.isAxisAllowed(y)
 }
 
-func (g *Grid) allowedAxis(x int) bool {
+func (g *Grid) isAxisAllowed(x int) bool {
 	return x >= 0 && x < g.Size
 }
 

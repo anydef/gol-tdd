@@ -5,9 +5,15 @@ type Game struct {
 }
 
 func (g *Game) Next() Grid {
-	next_grid := NewGrid(g.grid.Size)
+	side := g.grid.Size
+	next_grid := NewGrid(side)
 
-	next_grid.setCell(NewCoordinate(0, 0), Dead)
+	for x := 0; x < side; x++ {
+		for y := 0; y < side; y++ {
+			c := NewCoordinate(x, y)
+			next_grid.setCell(c, g.grid.NextGeneration(c))
+		}
+	}
 
 	g.grid = next_grid
 
