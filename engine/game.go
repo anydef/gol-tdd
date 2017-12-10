@@ -1,39 +1,39 @@
 package engine
 
 type Game struct {
-	grid Grid
+	Grid Grid
 }
 
 func (g *Game) Next() Grid {
-	side := g.grid.Size
+	side := g.Grid.Size
 	next_grid := NewGrid(side)
 
 	for x := 0; x < side; x++ {
 		for y := 0; y < side; y++ {
 			c := NewCoordinate(x, y)
-			next_grid.setCell(c, g.grid.NextGeneration(c))
+			next_grid.setCell(c, g.Grid.NextGeneration(c))
 		}
 	}
 
-	g.grid = next_grid
+	g.Grid = next_grid
 
 	return g.Snapshot()
 }
 
 func (g *Game) GetCell(c Coordinate) State {
-	return g.grid.CellAt(c)
+	return g.Grid.CellAt(c)
 }
 
 func (g *Game) Seed(c Coordinate, i State) State {
 	//NewCoordinate()
-	return g.grid.setCell(c, i)
+	return g.Grid.setCell(c, i)
 }
 
 func (g *Game) Snapshot() Grid {
-	return g.grid
+	return g.Grid
 }
 
 
 func NewGame(side int) Game {
-	return Game{grid: NewGrid(side)}
+	return Game{Grid: NewGrid(side)}
 }

@@ -9,35 +9,57 @@ type Terminal interface {
 	Start() error
 	Stop()
 	Draw(engine.Coordinate)
-	DrawGrid([]engine.Coordinate)
+	RedrawGrid([]engine.Coordinate)
+	Poll() tcell.Event
+	Size() (int, int)
+	Sync()
+	Clear()
+	SetStyle(tcell.Style)
 }
 
-func (t TerminalImpl) DrawGrid(grid []engine.Coordinate) {
-	for _, c := range grid {
-		t.Draw(c)
-	}
+func (t TerminalImpl) SetStyle(style tcell.Style) {
+	t.Screen.SetStyle(style)
+}
+
+func (t TerminalImpl) Clear() {
+	t.Screen.Clear()
 }
 
 type TerminalImpl struct {
-	screen tcell.Screen
+	Screen tcell.Screen
 }
 
 func (t TerminalImpl) Draw(coord engine.Coordinate) {
-	style := tcell.StyleDefault.Background(tcell.NewHexColor(0xffffff))
-	t.screen.SetCell(coord.X, coord.Y, style, ' ')
+	style := tcell.StyleDefault.
+		Background(tcell.NewHexColor(0x000000)).
+		Foreground(tcell.NewHexColor(0xffffff))
+	t.Screen.SetCell(coord.X, coord.Y, style, 'A')
+}
+
+func (t TerminalImpl) RedrawGrid(grid []engine.Coordinate) {
+	for _, c := range grid {
+		t.Draw(c)
+	}
+	t.Screen.Show()
 }
 
 func (t TerminalImpl) Start() error {
-	return t.screen.Init()
-}
-func (t TerminalImpl) Stop() {
-	t.screen.Fini()
+	return t.Screen.Init()
 }
 
-func NewScreen() (Terminal, error) {
-	screen, err := tcell.NewScreen()
-	if err != nil {
-		return nil, err
-	}
-	return TerminalImpl{screen: screen}, nil
+func (t TerminalImpl) Poll() tcell.Event {
+	return t.Screen.PollEvent()
+}
+
+func (t TerminalImpl) Stop() {
+	t.Screen.Fini()
+}
+
+func (t TerminalImpl) Size() (int, int) {
+	width, height := t.Screen.Size()
+	return width, height
+}
+func (t TerminalImpl) Sync() {
+	//t.Screen.Sync()
+	t.Screen.Show()
 }

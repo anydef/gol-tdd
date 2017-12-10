@@ -187,7 +187,7 @@ func TestGrid_ReturnsSet_ofNone_forNilGrid(t *testing.T) {
 	var g Grid = NewGrid(0)
 	var c []Coordinate = g.AliveCells()
 	if len(c) != 0 {
-		t.Fatalf("Empty grid should return empty list of coordinates")
+		t.Fatalf("Empty Grid should return empty list of coordinates")
 	}
 }
 
@@ -195,7 +195,7 @@ func TestGrid_ReturnsSet_ofLiveCells_whenNoneAlive(t *testing.T) {
 	var g Grid = NewGrid(10)
 	var c []Coordinate = g.AliveCells()
 	if len(c) != 0 {
-		t.Fatalf("Empty grid should return empty list of coordinates")
+		t.Fatalf("Empty Grid should return empty list of coordinates")
 	}
 }
 
