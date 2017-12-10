@@ -182,3 +182,40 @@ func TestGrid_Exactly_3_Cells_Breed(t *testing.T) {
 	}
 
 }
+
+func TestGrid_ReturnsSet_ofNone_forNilGrid(t *testing.T) {
+	var g Grid = NewGrid(0)
+	var c []Coordinate = g.AliveCells()
+	if len(c) != 0 {
+		t.Fatalf("Empty grid should return empty list of coordinates")
+	}
+}
+
+func TestGrid_ReturnsSet_ofLiveCells_whenNoneAlive(t *testing.T) {
+	var g Grid = NewGrid(10)
+	var c []Coordinate = g.AliveCells()
+	if len(c) != 0 {
+		t.Fatalf("Empty grid should return empty list of coordinates")
+	}
+}
+
+func TestGrid_ReturnsSet_ofLiveCells(t *testing.T) {
+	cells := []struct {
+		x int
+		y int
+	}{
+		{0, 1},
+		{0, 0},
+		{1, 0},
+	}
+
+	var g Grid = NewGrid(10)
+	for _, cell := range cells {
+		g.setCell(NewCoordinate(cell.x, cell.y), Alive)
+	}
+
+	var c []Coordinate = g.AliveCells()
+	if len(c) != len(cells) {
+		t.Fatalf("Number of live cells=%d, should be exact as popuated cells = %d. ", len(c), len(cells))
+	}
+}

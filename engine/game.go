@@ -33,6 +33,7 @@ func (g *Game) Snapshot() Grid {
 	return g.grid
 }
 
+
 func NewGame(side int) Game {
 	return Game{grid: NewGrid(side)}
 }
